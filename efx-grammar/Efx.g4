@@ -336,8 +336,8 @@ stringFunction
     | RepeatFunction                OpenParenthesis expression Comma expression CloseParenthesis                                             # repeatFunction
     | UrlEncodeFunction             OpenParenthesis expression CloseParenthesis                                                              # urlEncodeFunction
     | CapitalizeFirstFunction       OpenParenthesis expression CloseParenthesis                                                              # capitalizeFirstFunction
-    | PreferredLanguageFunction     OpenParenthesis fieldContext CloseParenthesis                                                            # preferredLanguageFunction
-    | PreferredLanguageTextFunction OpenParenthesis fieldContext CloseParenthesis                                                            # preferredLanguageTextFunction
+    | PreferredLanguageFunction     OpenParenthesis expression CloseParenthesis                                                              # preferredLanguageFunction
+    | PreferredLanguageTextFunction OpenParenthesis expression CloseParenthesis                                                              # preferredLanguageTextFunction
     ;
 
 dateFunction
