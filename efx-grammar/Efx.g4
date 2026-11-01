@@ -137,14 +137,19 @@ primitiveType: Text | Indicator | Number | Date | Time | Duration;
 
 /*
  * Types and cardinality are not part of the grammar: the translator infers them.
- * Earlier alternatives bind tighter: the bracket and the path steps, then * / %, then + -, then
- * the comparisons and conditions, each binding tighter than the ones listed after it, then and,
- * then or. The prefix forms come last, so the expression after else, satisfies or return
- * extends as far to the right as it can: if c then 1 else 2 == 3 compares 2 with 3.
+ * Earlier alternatives bind tighter: the predicate x[c], the index x[at n] and the path steps,
+ * then * / %, then + -, then the comparisons and conditions, each binding tighter than the ones
+ * listed after it, then and, then or. The prefix forms come last, so the expression after else,
+ * satisfies or return extends as far to the right as it can: if c then 1 else 2 == 3 compares 2
+ * with 3.
+ * A predicate keeps the elements of a sequence for which its condition holds; an index selects
+ * the nth element of the whole sequence. The keyword at tells the two apart, so the parser
+ * decides on the token after the bracket.
  */
 expression
     : OpenParenthesis expression CloseParenthesis                       # parenthesizedExpression
-    | expression OpenBracket expression CloseBracket                    # indexedExpression
+    | expression OpenBracket expression CloseBracket                    # filteredExpression
+    | expression OpenBracket At expression CloseBracket                 # indexedExpression
     | expression Slash AtPrefix attributeName=Identifier                # attributeExpression
     | expression ColonColon linkedFieldReference                        # fieldFromContextExpression
     | expression ColonColon simpleNodeReference                         # nodeFromContextExpression
@@ -234,11 +239,12 @@ variableReference: VariablePrefix variableName=Identifier;
 
 /*
  * Contexts are not expressions: a context declaration, an iterator over contexts, a dictionary
- * index, the argument of preferred-language and a selector take a field or a node, with its
- * predicates.
+ * index and a selector take a field or a node, with its predicates and indexes in the order
+ * written.
  */
-fieldContext: (absoluteFieldReference | linkedFieldReference) (OpenBracket predicate CloseBracket)*;
-nodeContext: (absoluteNodeReference | simpleNodeReference) (OpenBracket predicate CloseBracket)*;
+fieldContext: (absoluteFieldReference | linkedFieldReference) contextBracket*;
+nodeContext: (absoluteNodeReference | simpleNodeReference) contextBracket*;
+contextBracket: OpenBracket (predicate | At position=expression) CloseBracket;
 predicate: expression;
 
 /*

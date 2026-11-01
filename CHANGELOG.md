@@ -20,6 +20,7 @@ This pre-release contains the following changes since alpha.3:
 
 - **`fields.json` forward metadata**: the codelist reference property `parentId` has been renamed to `listName` in `fields/fwd/fields.json`, for clarity. The value it carries is unchanged; it names the codelist to be used for the `listName` attribute.
 - **TEDEN2 default values snippet**: `.ted/teden2/snippets/default-values.json` has been updated to support repeatable groups and notice contexts (procedure, part, lot). This file is reserved for TED applications and is not intended for use by eSenders or other third parties.
+- **EFX indexes are written `[at n]`**: a bracket holding a condition, as in `BT-00-Text[BT-00-Number > 1]`, is a predicate and nothing else. An index is written with the keyword `at`, as in `$list[at 1]`, and selects the nth element of the whole sequence. The view templates are updated accordingly. Names that start with `__` are reserved for the variables that the EFX translator generates. See `efx-grammar/README.md`.
 
 ## Download
 
