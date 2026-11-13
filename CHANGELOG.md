@@ -20,6 +20,15 @@ This pre-release contains the following changes since alpha.3:
 
 - **`fields.json` forward metadata**: the codelist reference property `parentId` has been renamed to `listName` in `fields/fwd/fields.json`, for clarity. The value it carries is unchanged; it names the codelist to be used for the `listName` attribute.
 - **TEDEN2 default values snippet**: `.ted/teden2/snippets/default-values.json` has been updated to support repeatable groups and notice contexts (procedure, part, lot). This file is reserved for TED applications and is not intended for use by eSenders or other third parties.
+- **The EFX grammar no longer types expressions**: one `expression` rule replaces the typed expression and sequence rules. The EFX translator infers the type of each part of an expression from its literals, from the field metadata and from the declarations in scope, and rejects an expression whose types do not fit. Declarations keep their types, as in `text:$name = ...`. See "How expressions are parsed" in `efx-grammar/README.md`. With it, EFX changes as follows:
+  - **Casts are removed**: `(text*)BT-00-Repeatable-Text` is written `BT-00-Repeatable-Text`, since the type of every reference is known.
+  - **A single value is accepted wherever a sequence is**, as a sequence of one value, whatever gives it: `count($x)` and `'a' in $x` are valid when `$x` holds one text.
+  - **`count` counts nodes**, as in `count(ND-SubNode)`.
+  - **A node read through a context override is a node**: `ND-1::ND-2` and `$n::ND-Root` can be counted or tested with `is present`, as `ND-2` can.
+  - **A selector no longer reads an attribute through a context override**: the form `&{ND-1::BT-2/@a}` is removed.
+  - **The expression after `else`, `return` or `satisfies` extends as far to the right as it can**: `if c then 1 else 2 == 3` is read as `if c then 1 else (2 == 3)`; to compare the conditional, write `(if c then 1 else 2) == 3`.
+  - **A conditional whose branches differ in number of values is a sequence**: `if c then BT-00-Repeatable-Text else 'x'` is a sequence of texts, the single value promoted. Both branches must give the same type of value.
+- **EFX indexes are written `[at n]`**: a bracket holding a condition, as in `BT-00-Text[BT-00-Number > 1]`, is a predicate and nothing else. An index is written with the keyword `at`, as in `$list[at 1]`, and selects the nth element of the whole sequence. It does so in every position, also before `/@attribute`, `::` or `:rawValue` and in a context, where earlier pre-releases selected the nth element under each parent. Its position is read once, where the expression stands. In a nested template line, an index in the context counts within the element of the line above, and a position that reads a field reads it there. The view templates are updated accordingly. Names that start with `__` are reserved for the variables that the EFX translator generates. See `efx-grammar/README.md`.
 
 ## Download
 
