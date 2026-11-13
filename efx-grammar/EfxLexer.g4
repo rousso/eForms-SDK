@@ -18,8 +18,8 @@ EmptyOrCommentLine: (TAB | SPACE)* COMMENT? EOL+ -> channel(HIDDEN);
 
 // Include directive -------------------------------------------------------------------------------
 // The #include directive is used to include the contents of another EFX rules file.
-// It switches to INCLUDE_PATH mode to capture the quoted file path.
-IncludeDirective: '#include' (TAB | SPACE)+ -> pushMode(INCLUDE_PATH);
+// It may be indented. It switches to INCLUDE_PATH mode to capture the quoted file path.
+IncludeDirective: (TAB | SPACE)* '#include' (TAB | SPACE)+ -> pushMode(INCLUDE_PATH);
 
 // Indentation ------------------------------------------------------------------------------------
 
@@ -293,6 +293,10 @@ WithKeyword: WITH -> popMode, pushMode(SKIP_WHITESPACE), pushMode(EXPRESSION), t
 SummarySectionHeaderX: '---' '-'* (TAB | SPACE)* 'SUMMARY' (TAB | SPACE)* '---' '-'* EOL* -> popMode, type(SummarySectionHeader);
 NavigationSectionHeaderX: '---' '-'* (TAB | SPACE)* 'NAVIGATION' (TAB | SPACE)* '---' '-'* EOL* -> popMode, type(NavigationSectionHeader);
 StageHeaderStartX: '---' '-'* (TAB | SPACE)* STAGE (TAB | SPACE)+ -> popMode, pushMode(STAGE_HEADER), type(StageHeaderStart);
+
+// A rule need not end with a semicolon, so an #include directive that follows one is met in EXPRESSION mode.
+// After the path, the lexer is back in EXPRESSION mode, as it was before the directive.
+IncludeDirectiveX: '#include' (TAB | SPACE)+ -> pushMode(INCLUDE_PATH), type(IncludeDirective);
 
 // Encountering WHEN in an expression block indicates that conditional templates or rules follow.
 // We should remain in EXPRESSION mode to process the first condition.
